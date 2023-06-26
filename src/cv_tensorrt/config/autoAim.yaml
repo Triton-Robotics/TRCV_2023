@@ -1,0 +1,15 @@
+cv_tensorrt:
+  ros__parameters:
+    DEBUG: True
+    
+    yaw_offset: 10
+    pitch_offset: 10
+    
+    small_armor:
+      width: 140.0
+      height: 60.0
+    big_armor:
+      width: 230.0
+      height: 60.0
+    
+

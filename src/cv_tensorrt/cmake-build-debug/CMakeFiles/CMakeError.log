@@ -1,0 +1,50 @@
+Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
+Change Dir: /home/hongbin/Desktop/cv_workspace/src/cv_tensorrt/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/home/hongbin/Downloads/clion-2022.3.2/bin/ninja/linux/x64/ninja cmTC_b156f && [1/2] Building C object CMakeFiles/cmTC_b156f.dir/src.c.o
+[2/2] Linking C executable cmTC_b156f
+FAILED: cmTC_b156f 
+: && /usr/bin/cc   CMakeFiles/cmTC_b156f.dir/src.c.o -o cmTC_b156f   && :
+/usr/bin/ld: CMakeFiles/cmTC_b156f.dir/src.c.o: in function `main':
+src.c:(.text+0x46): undefined reference to `pthread_create'
+/usr/bin/ld: src.c:(.text+0x52): undefined reference to `pthread_detach'
+/usr/bin/ld: src.c:(.text+0x5e): undefined reference to `pthread_cancel'
+/usr/bin/ld: src.c:(.text+0x6f): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+ninja: build stopped: subcommand failed.
+
+
+Source file was:
+#include <pthread.h>
+
+static void* test_func(void* data)
+{
+  return data;
+}
+
+int main(void)
+{
+  pthread_t thread;
+  pthread_create(&thread, NULL, test_func, NULL);
+  pthread_detach(thread);
+  pthread_cancel(thread);
+  pthread_join(thread, NULL);
+  pthread_atfork(NULL, NULL, NULL);
+  pthread_exit(NULL);
+
+  return 0;
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/hongbin/Desktop/cv_workspace/src/cv_tensorrt/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/home/hongbin/Downloads/clion-2022.3.2/bin/ninja/linux/x64/ninja cmTC_84c16 && [1/2] Building C object CMakeFiles/cmTC_84c16.dir/CheckFunctionExists.c.o
+[2/2] Linking C executable cmTC_84c16
+FAILED: cmTC_84c16 
+: && /usr/bin/cc -DCHECK_FUNCTION_EXISTS=pthread_create  CMakeFiles/cmTC_84c16.dir/CheckFunctionExists.c.o -o cmTC_84c16  -lpthreads && :
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+ninja: build stopped: subcommand failed.
+
+
+

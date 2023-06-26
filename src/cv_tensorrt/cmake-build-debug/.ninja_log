@@ -1,0 +1,13 @@
+# ninja log v5
+2	1360	1678564595045506266	CMakeFiles/cv_tensorrt.dir/lib/yolov5/src/model.cpp.o	cd2bb38b8f9e6262
+0	1431	1678564595117511635	CMakeFiles/myplugins.dir/lib/yolov5/plugin/yololayer.cu.o	ef94696dca57c164
+1431	1492	1678564595177516109	libmyplugins.so	932ea4c72dbba1df
+1	2252	1678564595937572781	CMakeFiles/cv_tensorrt.dir/lib/yolov5/src/postprocess.cpp.o	7559d58bea7e7057
+1	2286	1678564595973575465	CMakeFiles/cv_tensorrt.dir/src/Camera.cpp.o	62bc5a4d756d3b88
+1	2684	1678564596369604946	CMakeFiles/cv_tensorrt.dir/lib/yolov5/src/calibrator.cpp.o	bb9fafd07b82c659
+0	4162	1678564597849714998	CMakeFiles/cv_tensorrt.dir/src/YOLO.cpp.o	a79ebeac5cca93c1
+0	4589	1678564598273746467	CMakeFiles/cv_tensorrt.dir/src/main.cpp.o	f5c5f74865c0d57b
+2	4679	1678564598365753291	CMakeFiles/cv_tensorrt.dir/lib/yolov5/src/preprocess.cu.o	edd63efd7df4cdfd
+4679	4959	1678564598645774059	cv_tensorrt	73a12f2e11ef8906
+1	3863	1678565115427206879	CMakeFiles/cv_tensorrt.dir/src/main.cpp.o	f5c5f74865c0d57b
+3863	4125	1678565115687215033	cv_tensorrt	73a12f2e11ef8906

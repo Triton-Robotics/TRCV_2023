@@ -1,0 +1,88 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-682cb1fae1ba9bf113ea.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.24"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "cv_tensorrt",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "cv_tensorrt::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-cv_tensorrt-Debug-7cbbc977884b423666ff.json",
+					"name" : "cv_tensorrt",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "cv_tensorrt_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-cv_tensorrt_uninstall-Debug-a106aeb5b9e0ff401375.json",
+					"name" : "cv_tensorrt_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "myplugins::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-myplugins-Debug-7abcb815ac98f9dac0e3.json",
+					"name" : "myplugins",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-Debug-8ff5b0adcaa33dc256e7.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/hongbin/Desktop/cv_workspace/src/cv_tensorrt/cmake-build-debug",
+		"source" : "/home/hongbin/Desktop/cv_workspace/src/cv_tensorrt"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 4
+	}
+}

@@ -1,0 +1,1 @@
+-I/usr/local/cuda/include -I"/home/nvidia/TensorRT-8.2.5.1/include" -I/home/hongbin/CLionProjects/cv_tensorrt/yolov5/src -I/home/hongbin/CLionProjects/cv_tensorrt/yolov5/plugin -I/usr/local/include/opencv4

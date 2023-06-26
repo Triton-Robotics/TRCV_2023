@@ -1,0 +1,6 @@
+[submodule "src/ros2_serial_example"]
+	path = src/ros2_serial_example
+	url = https://github.com/Triton-Robotics/ros2_serial_example.git
+[submodule "src/cool_vector_type"]
+	path = src/cool_vector_type
+	url = https://github.com/Triton-Robotics/cool_vector_type

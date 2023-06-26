@@ -1,0 +1,1 @@
+  -L"/home/nvidia/TensorRT-8.2.5.1/lib"  -Wl,-rpath,/home/nvidia/TensorRT-8.2.5.1/lib -lnvinfer -lcudart -lcudadevrt -lcudart_static -lrt -lpthread -ldl 
