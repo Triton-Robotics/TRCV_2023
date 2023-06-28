@@ -1,0 +1,4 @@
+src/cv_tensorrt/.vscode/settings.json
+log/
+build/
+install/

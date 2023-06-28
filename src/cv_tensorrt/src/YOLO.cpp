@@ -145,7 +145,7 @@ void YOLO::load_armor_data()
     float x, y, z = 0;
 
     double small_width = 140.0;
-    double small_height = 60.0;
+    double small_height = 130.0;
     double big_width = 230.0;
     double big_height = 60.0;
 //    double small_width = nh_->get_parameter("small_armor.width").as_double(),
@@ -196,6 +196,12 @@ cv::Point3f YOLO::getPose()
 
     cv::solvePnP(small_real_armor_points, final_armor_2Dpoints, cameraMatrix, distCoeffs, rvec, tvec, false,
              cv::SOLVEPNP_ITERATIVE);
+    
+    for(auto armor_point : final_armor_2Dpoints){
+        RCLCPP_INFO(nh_->get_logger(), "final armor points: %f, %f", armor_point.x, armor_point.y);
+    }
+
+    // RCLCPP_INFO_ONCE(nh_->get_logger(), "tvec: %f, %f, %f", tvec.at<double>(0,0), tvec.at<double>(1,0), tvec.at<double>(2,0));
 
     return cv::Point3f(tvec);
 

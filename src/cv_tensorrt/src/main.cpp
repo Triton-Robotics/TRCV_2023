@@ -68,20 +68,26 @@ int main(int argc, char** argv) {
 
     std::string window_name = "Yolov5 USB Camera";
 
-  
+    // size_t imgcnt = 0;
 
     signal(SIGINT, signal_handle);
 
     while (while_flag) {
 
 
-        //auto start = std::chrono::system_clock::now();
+        auto start = std::chrono::system_clock::now();
 
 
         RCLCPP_INFO_ONCE(nh_->get_logger(), "Start to process frame...");
         cv::Mat img;
         std::vector<cv::Mat> img_batch;
         camera.getImage(img);
+        // if(imgcnt % 30 == 0){
+        //     cv::imwrite(cv::format("images/%d.jpg", imgcnt), img);
+        // }
+        // imgcnt += 1;
+
+        RCLCPP_INFO(nh_->get_logger(), "Image size: %d x %d", img.cols, img.rows);
 
         if (img.empty()) continue;
 
@@ -137,23 +143,23 @@ int main(int argc, char** argv) {
             detector.publishData(target_3d.x, target_3d.y, target_3d.z);
         }
 
-        //auto end = std::chrono::system_clock::now();
+        auto end = std::chrono::system_clock::now();
 
-        //double t = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-        //draw_bbox(img, best_det);
-
-
-        //std::string label = cv::format("Inference time : % fps", 1/(t/1000));
-        //cv::putText(img,label, cv::Point(20, 40), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(0,0,255));
-        //cv::imshow(window_name , img);
+        double t = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+        draw_bbox(img, best_det);
 
 
-        //if (cv::waitKey(1) == 113)
-        //{
-         //   std::cout << "\nEsc key is pressed by user. Stopping the video\n" << std::endl;
-          //  rclcpp::shutdown();
-          //  break;
-       // }
+        std::string label = cv::format("Inference time : % ffps", 1/(t/1000));
+        cv::putText(img,label, cv::Point(20, 40), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(0,0,255));
+        cv::imshow(window_name , img);
+
+
+        if (cv::waitKey(1) == 113)
+        {
+           std::cout << "\nEsc key is pressed by user. Stopping the video\n" << std::endl;
+           rclcpp::shutdown();
+           break;
+       }
 
 
 

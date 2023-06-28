@@ -1,7 +1,7 @@
 # adapted the CUDA and tensorrt part from
 # https://github.com/wang-xinyu/tensorrtx/blob/master/yolov5/CMakeLists.txt
 
-cmake_minimum_required(VERSION 3.23)
+cmake_minimum_required(VERSION 3.16)
 project(cv_tensorrt)
 
 add_definitions(-std=c++14)
