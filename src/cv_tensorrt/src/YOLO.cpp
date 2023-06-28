@@ -157,16 +157,19 @@ void YOLO::load_armor_data()
         RCLCPP_INFO(nh_->get_logger(), "small marmor:\n width: %f, height: %f\n big armor:\n width: %f, height: %f\n ",
                     small_width, small_height, big_width, big_height);
     }
+    x = 0;
+    y = 0;
+    small_real_armor_points.emplace_back(x, y, z);
     x = -small_width / 2;
     y = small_height / 2;
     small_real_armor_points.emplace_back(x, y, z);
     x = small_width / 2;
     y = small_height / 2;
     small_real_armor_points.emplace_back(x, y, z);
-    x = small_width / 2;
+    x = -small_width / 2;
     y = -small_height / 2;
     small_real_armor_points.emplace_back(x, y, z);
-    x = -small_width / 2;
+    x = small_width / 2;
     y = -small_height / 2;
     small_real_armor_points.emplace_back(x, y, z);
 
@@ -197,11 +200,13 @@ cv::Point3f YOLO::getPose()
     cv::solvePnP(small_real_armor_points, final_armor_2Dpoints, cameraMatrix, distCoeffs, rvec, tvec, false,
              cv::SOLVEPNP_ITERATIVE);
     
-    for(auto armor_point : final_armor_2Dpoints){
-        RCLCPP_INFO(nh_->get_logger(), "final armor points: %f, %f", armor_point.x, armor_point.y);
-    }
+    // for(auto armor_point : final_armor_2Dpoints){
+    //     RCLCPP_INFO(nh_->get_logger(), "final armor points: %f, %f", armor_point.x, armor_point.y);
+    // }
 
-    // RCLCPP_INFO_ONCE(nh_->get_logger(), "tvec: %f, %f, %f", tvec.at<double>(0,0), tvec.at<double>(1,0), tvec.at<double>(2,0));
+
+    // cv::projectPoints([0.0, 0.0, 1000.0], rvec, tvec, cameraMatrix, distCoeffs, output);
+    RCLCPP_INFO(nh_->get_logger(), "tvec: %f, %f, %f", tvec.at<double>(0,0), tvec.at<double>(1,0), tvec.at<double>(2,0));
 
     return cv::Point3f(tvec);
 

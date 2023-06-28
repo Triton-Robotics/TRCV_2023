@@ -81,13 +81,28 @@ private:
     std::vector<cv::Point3f> small_real_armor_points;
     std::vector<cv::Point3f> big_real_armor_points;
 
+    /*
+    Camera matrix :
 
+    [[2062.15199    0.       555.84843]
+    [   0.      2051.33571  451.03496]
+    [   0.         0.         1.     ]]
+    */
 
-    cv::Mat cameraMatrix = (cv::Mat_<double>(3, 3) << 2180.67, 0.0, 661.13,
-            0.0, 2162.82, 454.36,
-            0.0, 0.0, 1.0);
-    cv::Mat distCoeffs = (cv::Mat_<double>(1, 5)
-            << -0.0685, 0.143, 0.00127, 0.00448, -0.09892);
+    cv::Mat cameraMatrix = (cv::Mat_<double>(3, 3) << 
+            2062.15199, 0.0,    555.84843,
+            0.0,        2051.33571, 451.03496,
+            0.0,        0.0,        1.0
+    );
+
+    /*
+    dist :
+
+    [[-0.20666  0.48607 -0.01596 -0.02134  3.17586]]
+    */
+    cv::Mat distCoeffs = (cv::Mat_<double>(1, 5) << 
+            -0.20666, 0.48607, -0.01596, -0.02134, 3.17586
+    );
 
 
 

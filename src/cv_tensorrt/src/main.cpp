@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
 
     std::string window_name = "Yolov5 USB Camera";
 
-    // size_t imgcnt = 0;
+    size_t imgcnt = 0;
 
     signal(SIGINT, signal_handle);
 
@@ -82,10 +82,10 @@ int main(int argc, char** argv) {
         cv::Mat img;
         std::vector<cv::Mat> img_batch;
         camera.getImage(img);
-        // if(imgcnt % 30 == 0){
-        //     cv::imwrite(cv::format("images/%d.jpg", imgcnt), img);
-        // }
-        // imgcnt += 1;
+        if(imgcnt % 30 == 0){
+            cv::imwrite(cv::format("images/%d.jpg", imgcnt), img);
+        }
+        imgcnt += 1;
 
         RCLCPP_INFO(nh_->get_logger(), "Image size: %d x %d", img.cols, img.rows);
 
@@ -131,13 +131,19 @@ int main(int argc, char** argv) {
 //            OFFSET_PITCH = (OFFSET_INT_PITCH - 1800);
             // get 4 corner for solvepnp
             detector.final_armor_2Dpoints.clear();
+            cv::Point2f middle = {best_det.bbox[0], best_det.bbox[1]};
             cv::Point2f topLeft = {best_det.bbox[0]-best_det.bbox[2]/2, best_det.bbox[1]-best_det.bbox[3]/2};
             cv::Point2f topRight = {best_det.bbox[0]+best_det.bbox[2]/2, best_det.bbox[1]-best_det.bbox[3]/2};
             cv::Point2f bottomLeft = {best_det.bbox[0]-best_det.bbox[2]/2, best_det.bbox[1]+best_det.bbox[3]/2};
             cv::Point2f bottomRight = {best_det.bbox[0]+best_det.bbox[2]/2, best_det.bbox[1]+best_det.bbox[3]/2};
-            detector.final_armor_2Dpoints = {topLeft, topRight, bottomLeft, bottomRight};
+            detector.final_armor_2Dpoints = {middle, topLeft, topRight, bottomLeft, bottomRight};
 
 
+            cv::circle(img, middle, 5, {0, 0, 255}, -1);
+            cv::circle(img, topLeft, 5, {0, 255, 0}, -1);
+            cv::circle(img, topRight, 5, {0, 255, 0}, -1);
+            cv::circle(img, bottomLeft, 5, {0, 255, 0}, -1);
+            cv::circle(img, bottomRight, 5, {0, 255, 0}, -1);
             cv::Point3f target_3d = {0, 0, 0};
             target_3d = detector.getPose();
             detector.publishData(target_3d.x, target_3d.y, target_3d.z);
@@ -151,6 +157,7 @@ int main(int argc, char** argv) {
 
         std::string label = cv::format("Inference time : % ffps", 1/(t/1000));
         cv::putText(img,label, cv::Point(20, 40), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(0,0,255));
+        
         cv::imshow(window_name , img);
 
 
