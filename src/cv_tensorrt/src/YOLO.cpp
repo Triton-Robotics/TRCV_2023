@@ -144,10 +144,11 @@ void YOLO::load_armor_data()
 {
     float x, y, z = 0;
 
-    double small_width = 140.0;
-    double small_height = 130.0;
+    double small_width = 130.0;
+    double small_height = 55.0;
+
     double big_width = 230.0;
-    double big_height = 60.0;
+    double big_height = 55.0;
 //    double small_width = nh_->get_parameter("small_armor.width").as_double(),
 //            small_height = nh_->get_parameter("small_armor.height").as_double(),
 //            big_width = nh_->get_parameter("big_armor.width").as_double(),
@@ -174,6 +175,9 @@ void YOLO::load_armor_data()
     small_real_armor_points.emplace_back(x, y, z);
 
     //**********************************************************************//
+    x = 0;
+    y = 0;
+    big_real_armor_points.emplace_back(x, y, z);
     x = -big_width / 2;
     y = big_height / 2;
     big_real_armor_points.emplace_back(x, y, z);
@@ -181,24 +185,33 @@ void YOLO::load_armor_data()
     y = big_height / 2;
 
     big_real_armor_points.emplace_back(x, y, z);
-    x = big_width / 2;
+    x = -big_width / 2;
     y = -big_height / 2;
 
     big_real_armor_points.emplace_back(x, y, z);
-    x = -big_width / 2;
+    x = big_width / 2;
     y = -big_height / 2;
 
     big_real_armor_points.emplace_back(x, y, z);
 
 }
 
-cv::Point3f YOLO::getPose()
+cv::Point3f YOLO::getPose(ARMOR_SIZE size)
 {
     cv::Mat rvec;
     cv::Mat tvec;
 
-    cv::solvePnP(small_real_armor_points, final_armor_2Dpoints, cameraMatrix, distCoeffs, rvec, tvec, false,
+    if (size == ARMOR_SIZE::SMALL){
+        cv::solvePnP(small_real_armor_points, final_armor_2Dpoints, cameraMatrix, distCoeffs, rvec, tvec, false,
              cv::SOLVEPNP_ITERATIVE);
+    }
+    else if (size == ARMOR_SIZE::LARGE){
+        cv::solvePnP(big_real_armor_points, final_armor_2Dpoints, cameraMatrix, distCoeffs, rvec, tvec, false,
+             cv::SOLVEPNP_ITERATIVE);
+    }
+    else {
+        RCLCPP_INFO(nh_->get_logger(), "lmao wrong armor size");
+    }
     
     // for(auto armor_point : final_armor_2Dpoints){
     //     RCLCPP_INFO(nh_->get_logger(), "final armor points: %f, %f", armor_point.x, armor_point.y);

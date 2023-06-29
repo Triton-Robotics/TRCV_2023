@@ -41,6 +41,7 @@ CropResult crop_interest_region(const Mat3b &image, Coords topleft, Coords botto
   return CropResult{image(Range(topleft.y, bottomright.y), Range(topleft.x, bottomright.x)), translator};
 }
 
+
 std::pair<SplitResult, SplitResult> split_down_middle(const Mat3b &image) {
   int32_t width = image.cols;
   int32_t halfwidth = image.cols / 2;
@@ -58,7 +59,7 @@ std::pair<SplitResult, SplitResult> split_down_middle(const Mat3b &image) {
 Mat1b get_mask(const Mat3b &image, ARMOR_COLOR color) {
   Mat3b hsv_image;
   Mat mask;
-  if (color == BLUE) {
+  if (color == BLUE_ARMOR) {
     cvtColor(image, hsv_image, COLOR_BGR2HSV);
     cv_constants::inBlueRange(hsv_image, mask);
   } else {
@@ -104,8 +105,13 @@ vector<Coords> box_points_to_coords(Point2f *coords2dvec) {
   return coords;
 }
 
+bool globalleft = false;
+
 LightBar get_lightbar_in_split(const SplitResult &splitResult, ARMOR_COLOR color) {
   Mat1b mask{get_mask(splitResult.image, color)};
+  if(globalleft){
+  cv::imshow("hi", mask);
+  }
   Rect rect = cv::boundingRect(mask);
   if (static_cast<double>(rect.area()) / (mask.rows * mask.cols) < cv_constants::MIN_LIGHTBAR_BOX_RATIO) {
     throw InvalidLightbar{};
@@ -118,10 +124,13 @@ LightBar get_lightbar_in_split(const SplitResult &splitResult, ARMOR_COLOR color
   return box_points_to_lightbar(coords);
 }
 
+
 ArmorPanel get_key_points(cv::Mat3b image, Coords topleft, Coords bottomright, ARMOR_COLOR color) {
   CropResult cropResult{crop_interest_region(image, topleft, bottomright)};
   auto [leftSplit, rightSplit] = split_down_middle(cropResult.image);
+  globalleft = true;
   LightBar leftlb = get_lightbar_in_split(leftSplit, color);
+  globalleft = false;
   LightBar rightlb = get_lightbar_in_split(rightSplit, color);
   return ArmorPanel{LightBar{cropResult.translator(leftSplit.translator(leftlb.top)),
                              cropResult.translator(leftSplit.translator(leftlb.bottom)),},
@@ -174,7 +183,7 @@ double get_panel_coeff(ArmorPanel a, const cv::Mat3b &image) {
   }
 
   auto rect = cv::boundingRect(contours[maxcontourindex]);
-  cv::waitKey(0);
+  // cv::waitKey(0);
 
   return static_cast<double>(armorpanelxs.size() - rect.width) / armorpanelxs.size();
 }

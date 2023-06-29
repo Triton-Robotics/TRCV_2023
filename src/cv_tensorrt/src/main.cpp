@@ -77,12 +77,12 @@ int main(int argc, char **argv) {
     cv::Mat img;
     std::vector<cv::Mat> img_batch;
     camera.getImage(img);
-    if (imgcnt % 30 == 0) {
-      cv::imwrite(cv::format("images/%d.jpg", imgcnt), img);
-    }
-    imgcnt += 1;
+    // if (imgcnt % 30 == 0) {
+    //   cv::imwrite(cv::format("images/%d.jpg", imgcnt), img);
+    // }
+    // imgcnt += 1;
 
-    RCLCPP_INFO(nh_->get_logger(), "Image size: %d x %d", img.cols, img.rows);
+    // RCLCPP_INFO(nh_->get_logger(), "Image size: %d x %d", img.cols, img.rows);
 
     if (img.empty()) continue;
 
@@ -98,17 +98,17 @@ int main(int argc, char **argv) {
     batch_nms(res_batch, cpu_output_buffer, img_batch.size(), kOutputSize, kConfThresh, kNmsThresh);
 
     Detection best_det = {{0.0f}, -1, -1, {0.0f}};
-    float smallest_dist = std::numeric_limits<float>::max();
+    float largest_area = std::numeric_limits<float>::min();
 
     for (size_t i = 0; i < res_batch.size(); i++) {
       for (size_t j = 0; j < res_batch[i].size(); j++) {
         if (res_batch[i][j].class_id == 1) {
-          cv::Point2f target_center = get_center(res_batch[i][j].bbox[0], res_batch[i][j].bbox[1]);
-          cv::Point2f frame_center = get_center(640, 640);
+          // cv::Point2f target_center = get_center(res_batch[i][j].bbox[0], res_batch[i][j].bbox[1]);
+          // cv::Point2f frame_center = get_center(640, 640);
 
-          float dist = euclid_distance(target_center.x, target_center.y, frame_center.x, frame_center.y);
+          float area = res_batch[i][j].bbox[2] * res_batch[i][j].bbox[3];
           //std::cout << dist << std::endl;
-          if (dist < smallest_dist) {
+          if (area > largest_area) {
             best_det = res_batch[i][j];
           }
         }
@@ -128,40 +128,50 @@ int main(int argc, char **argv) {
       cv::Point2f bottomLeft = {best_det.bbox[0] - best_det.bbox[2] / 2, best_det.bbox[1] + best_det.bbox[3] / 2};
       cv::Point2f bottomRight = {best_det.bbox[0] + best_det.bbox[2] / 2, best_det.bbox[1] + best_det.bbox[3] / 2};
 
+      best_det.bbox[2] *= 1.2;
+      best_det.bbox[3] *= 1.2;
+
       Coords tlc(best_det.bbox[0] - best_det.bbox[2] / 2, best_det.bbox[1] - best_det.bbox[3] / 2);
       Coords brc(best_det.bbox[0] + best_det.bbox[2] / 2, best_det.bbox[1] + best_det.bbox[3] / 2);
 //      ArmorPanel armorpanel;
 //      ARMOR_SIZE size
-      auto out = getArmorPanelStats(tlc, brc, img, BLUE).value();
-      if (out.hasValue()) {
-        auto [armorpanel, size] = out.value();
+        //TODO: Fix
+      cv::Point3f target_3d = {0, 0, 0};
+      auto out = getArmorPanelStats(tlc, brc, img, BLUE_ARMOR);
+      if (out.has_value()) {
+        auto [armorpanel, panel_size] = out.value();
         Coords middlec =
             (armorpanel.left.top + armorpanel.left.bottom + armorpanel.right.top + armorpanel.right.bottom) / 4;
         cv::Point2f middlepoint = middlec.toopencvpoint();
-        detector.final_armor_2Dpoints(middlepoint,
+        detector.final_armor_2Dpoints = {middlepoint,
                                       armorpanel.left.top.toopencvpoint(),
                                       armorpanel.right.top.toopencvpoint(),
                                       armorpanel.left.bottom.toopencvpoint(),
-                                      armorpanel.right.bottom.toopencvpoint());
+                                      armorpanel.right.bottom.toopencvpoint()};
+        cv::circle(img, middlepoint, 5, {0, 0, 255}, -1);
+        cv::circle(img, armorpanel.left.top.toopencvpoint(), 5, {0, 255, 0}, -1);
+        cv::circle(img, armorpanel.right.top.toopencvpoint(), 5, {0, 255, 0}, -1);
+        cv::circle(img, armorpanel.left.bottom.toopencvpoint(), 5, {0, 255, 0}, -1);
+        cv::circle(img, armorpanel.right.bottom.toopencvpoint(), 5, {0, 255, 0}, -1);
+
+        target_3d = detector.getPose(panel_size);
       } else {
         //TODO: fix fallback
         detector.final_armor_2Dpoints = {middle, topLeft, topRight, bottomLeft, bottomRight};
       }
-
-      cv::circle(img, middle, 5, {0, 0, 255}, -1);
-      cv::circle(img, topLeft, 5, {0, 255, 0}, -1);
-      cv::circle(img, topRight, 5, {0, 255, 0}, -1);
-      cv::circle(img, bottomLeft, 5, {0, 255, 0}, -1);
-      cv::circle(img, bottomRight, 5, {0, 255, 0}, -1);
-      cv::Point3f target_3d = {0, 0, 0};
-      target_3d = detector.getPose();
+    
       detector.publishData(target_3d.x, target_3d.y, target_3d.z);
     }
 
     auto end = std::chrono::system_clock::now();
 
     double t = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    draw_bbox(img, best_det);
+    for (size_t i = 0; i < res_batch.size(); i++) {
+      for (size_t j = 0; j < res_batch[i].size(); j++) {
+
+        draw_bbox(img, res_batch[i][j]);
+      }
+    }
 
     std::string label = cv::format("Inference time : % ffps", 1 / (t / 1000));
     cv::putText(img, label, cv::Point(20, 40), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(0, 0, 255));

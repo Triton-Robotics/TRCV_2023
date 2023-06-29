@@ -15,11 +15,10 @@ enum ARMOR_SIZE {
 };
 
 enum ARMOR_COLOR {
-  BLUE, RED
+  BLUE_ARMOR, RED_ARMOR
 };
 
 namespace cv_constants {
-constexpr ARMOR_COLOR CURRENT_COLOR = RED;
 constexpr double MIN_LIGHTBAR_HEIGHT_RATIO = 0.005;
 constexpr double MAX_VERT_ASPECT_RATIO = 1.5;
 constexpr double MIN_LIGHTBAR_BOX_RATIO = 0.0005;

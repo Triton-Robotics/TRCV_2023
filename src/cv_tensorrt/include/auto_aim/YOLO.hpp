@@ -28,6 +28,7 @@
 #include "std_msgs/msg/int32.hpp"
 #include "cool_vector_type/msg/vector3.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "imutils.h"
 
 
 
@@ -54,7 +55,7 @@ public:
     bool debug_;
     rclcpp::Node::SharedPtr nh_;
 
-    cv::Point3f getPose();
+    cv::Point3f getPose(ARMOR_SIZE size);
     void publishData(double x, double y, double z);
 
     std::vector<cv::Point2f> final_armor_2Dpoints;
