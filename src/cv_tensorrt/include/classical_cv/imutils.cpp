@@ -69,8 +69,8 @@ Mat1b get_mask(const Mat3b &image, ARMOR_COLOR color) {
   cvtColor(image, switched, COLOR_BGR2RGB);
 //  imshow("Display window 2", switched);
 //  cv::waitKey(0);
-  imshow("Display window 2", mask);
-  cv::waitKey(0);
+  // imshow("Display window 2", mask);
+  // cv::waitKey(0);
   Mat kernel{Size(5, 5), CV_64FC1, Scalar(1.0)};
   Mat reshaped_mask;
 
@@ -174,7 +174,7 @@ double get_panel_coeff(ArmorPanel a, const cv::Mat3b &image) {
   }
 
   auto rect = cv::boundingRect(contours[maxcontourindex]);
-  cv::waitKey(0);
+  // cv::waitKey(0);
 
   return static_cast<double>(armorpanelxs.size() - rect.width) / armorpanelxs.size();
 }
@@ -184,6 +184,7 @@ std::optional<std::pair<ArmorPanel, ARMOR_SIZE>> getArmorPanelStats(Coords tople
                                                                     const cv::Mat3b &image,
                                                                     ARMOR_COLOR color) {
   cv::Mat3b claheimg = clahe_enhanced_image(image);
+  // auto claheimg = image;
   auto empty = std::optional<std::pair<ArmorPanel, ARMOR_SIZE>>{};
   if (!valid_bb(topleft, bottomright)) {
     return empty;
@@ -221,10 +222,10 @@ cv::Mat3b clahe_enhanced_image(const cv::Mat3b &image) {
   Mat3b newlab;
   cv::merge(vector<cv::Mat1b>{newplane, planes[1], planes[2]}, newlab);
   cv::Mat3b clahe_bgr;
-  cv::cvtColor(newlab, clahe_bgr, cv::COLOR_Lab2BGR);
+  cv::cvtColor(newlab, newlab, cv::COLOR_Lab2BGR);
   //Do inpainting
   Mat1b gray;
-  cv::cvtColor(clahe_bgr, gray, cv::COLOR_BGR2GRAY);
+  cv::cvtColor(newlab, gray, cv::COLOR_BGR2GRAY);
   Mat1b mask;
   //MAGIC NUMBER 2 (MOST IMPORTANT)
   cv::threshold(gray, mask, 225, 255, cv::THRESH_BINARY);

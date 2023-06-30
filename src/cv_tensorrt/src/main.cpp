@@ -159,7 +159,7 @@ int main(int argc, char **argv) {
         cv::circle(img, armorpanel.right.bottom.toopencvpoint(), 5, {0, 255, 0}, -1);
 
         target_3d = detector.getPose(panel_size);
-        detector.publishData(target_3d.x, target_3d.y, target_3d.z);
+        detector.publishData(target_3d.x, target_3d.y, target_3d.z );
       }
     
     }
