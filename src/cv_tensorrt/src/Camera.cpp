@@ -51,7 +51,7 @@ int Camera::init()
 
     // Set feature value
 
-    this->status = setProperty(7000.00, 640, 640);
+    this->status = setProperty(2000.0, 640, 640);
 
     // start grabbing
     this->status = IMV_StartGrabbing(this->devHandle);

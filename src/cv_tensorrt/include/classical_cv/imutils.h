@@ -24,8 +24,8 @@ constexpr double MAX_VERT_ASPECT_RATIO = 1.15;
 constexpr double MIN_LIGHTBAR_BOX_RATIO = 0.0005;
 constexpr auto inWhiteRange = [](auto &&PH1, auto &&PH2) {
   return cv::inRange(std::forward<decltype(PH1)>(PH1),
-                     std::vector<int>{0, 0, 70},
-                     std::vector<int>{255, 80, 255},
+                     std::vector<int>{0, 0, 20},
+                     std::vector<int>{255, 90, 255},
                      std::forward<decltype(PH2)>(PH2));
 };
 constexpr auto inBlueRange = [](auto &&PH1, auto &&PH2) {

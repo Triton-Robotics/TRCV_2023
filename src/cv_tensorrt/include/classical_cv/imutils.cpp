@@ -183,18 +183,16 @@ std::optional<std::pair<ArmorPanel, ARMOR_SIZE>> getArmorPanelStats(Coords tople
                                                                     Coords bottomright,
                                                                     const cv::Mat3b &image,
                                                                     ARMOR_COLOR color) {
-  cv::Mat3b claheimg = clahe_enhanced_image(image);
-  // auto claheimg = image;
   auto empty = std::optional<std::pair<ArmorPanel, ARMOR_SIZE>>{};
   if (!valid_bb(topleft, bottomright)) {
     return empty;
   }
   try {
-    ArmorPanel keypoints = get_key_points(claheimg, topleft, bottomright, color);
-    if (!valid_armorpanel(keypoints, claheimg)) {
+    ArmorPanel keypoints = get_key_points(image, topleft, bottomright, color);
+    if (!valid_armorpanel(keypoints, image)) {
       return empty;
     }
-    double widthcoeff = get_panel_coeff(keypoints, claheimg);
+    double widthcoeff = get_panel_coeff(keypoints, image);
     ARMOR_SIZE size = SMALL;
     if (widthcoeff < .6) {
       size = SMALL;
