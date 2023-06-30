@@ -41,7 +41,6 @@ CropResult crop_interest_region(const Mat3b &image, Coords topleft, Coords botto
   return CropResult{image(Range(topleft.y, bottomright.y), Range(topleft.x, bottomright.x)), translator};
 }
 
-
 std::pair<SplitResult, SplitResult> split_down_middle(const Mat3b &image) {
   int32_t width = image.cols;
   int32_t halfwidth = image.cols / 2;
@@ -70,8 +69,8 @@ Mat1b get_mask(const Mat3b &image, ARMOR_COLOR color) {
   cvtColor(image, switched, COLOR_BGR2RGB);
 //  imshow("Display window 2", switched);
 //  cv::waitKey(0);
-//  imshow("Display window 2", mask);
-//  cv::waitKey(0);
+  imshow("Display window 2", mask);
+  cv::waitKey(0);
   Mat kernel{Size(5, 5), CV_64FC1, Scalar(1.0)};
   Mat reshaped_mask;
 
@@ -105,13 +104,8 @@ vector<Coords> box_points_to_coords(Point2f *coords2dvec) {
   return coords;
 }
 
-bool globalleft = false;
-
 LightBar get_lightbar_in_split(const SplitResult &splitResult, ARMOR_COLOR color) {
   Mat1b mask{get_mask(splitResult.image, color)};
-  if(globalleft){
-  cv::imshow("hi", mask);
-  }
   Rect rect = cv::boundingRect(mask);
   if (static_cast<double>(rect.area()) / (mask.rows * mask.cols) < cv_constants::MIN_LIGHTBAR_BOX_RATIO) {
     throw InvalidLightbar{};
@@ -124,13 +118,10 @@ LightBar get_lightbar_in_split(const SplitResult &splitResult, ARMOR_COLOR color
   return box_points_to_lightbar(coords);
 }
 
-
-ArmorPanel get_key_points(cv::Mat3b image, Coords topleft, Coords bottomright, ARMOR_COLOR color) {
+ArmorPanel get_key_points(const cv::Mat3b& image, Coords topleft, Coords bottomright, ARMOR_COLOR color) {
   CropResult cropResult{crop_interest_region(image, topleft, bottomright)};
   auto [leftSplit, rightSplit] = split_down_middle(cropResult.image);
-  globalleft = true;
   LightBar leftlb = get_lightbar_in_split(leftSplit, color);
-  globalleft = false;
   LightBar rightlb = get_lightbar_in_split(rightSplit, color);
   return ArmorPanel{LightBar{cropResult.translator(leftSplit.translator(leftlb.top)),
                              cropResult.translator(leftSplit.translator(leftlb.bottom)),},
@@ -183,24 +174,26 @@ double get_panel_coeff(ArmorPanel a, const cv::Mat3b &image) {
   }
 
   auto rect = cv::boundingRect(contours[maxcontourindex]);
-  // cv::waitKey(0);
+  cv::waitKey(0);
 
   return static_cast<double>(armorpanelxs.size() - rect.width) / armorpanelxs.size();
 }
 
 std::optional<std::pair<ArmorPanel, ARMOR_SIZE>> getArmorPanelStats(Coords topleft,
                                                                     Coords bottomright,
-                                                                    const cv::Mat3b &image, ARMOR_COLOR color) {
+                                                                    const cv::Mat3b &image,
+                                                                    ARMOR_COLOR color) {
+  cv::Mat3b claheimg = clahe_enhanced_image(image);
   auto empty = std::optional<std::pair<ArmorPanel, ARMOR_SIZE>>{};
   if (!valid_bb(topleft, bottomright)) {
     return empty;
   }
   try {
-    ArmorPanel keypoints = get_key_points(image, topleft, bottomright, color);
-    if (!valid_armorpanel(keypoints, image)) {
+    ArmorPanel keypoints = get_key_points(claheimg, topleft, bottomright, color);
+    if (!valid_armorpanel(keypoints, claheimg)) {
       return empty;
     }
-    double widthcoeff = get_panel_coeff(keypoints, image);
+    double widthcoeff = get_panel_coeff(keypoints, claheimg);
     ARMOR_SIZE size = SMALL;
     if (widthcoeff < .6) {
       size = SMALL;
@@ -213,4 +206,32 @@ std::optional<std::pair<ArmorPanel, ARMOR_SIZE>> getArmorPanelStats(Coords tople
   } catch (cv::Exception &c) {
     return empty;
   }
+}
+
+cv::Mat3b clahe_enhanced_image(const cv::Mat3b &image) {
+  //Run CLAHE
+  cv::Mat3b lab;
+  cv::cvtColor(image, lab, cv::COLOR_BGR2Lab);
+  vector<cv::Mat1b> planes;
+  cv::split(lab, planes);
+  //MAGIC NUMBER 1
+  auto filter = cv::createCLAHE(40.0);
+  cv::Mat1b newplane;
+  filter->apply(planes[0], newplane);
+  Mat3b newlab;
+  cv::merge(vector<cv::Mat1b>{newplane, planes[1], planes[2]}, newlab);
+  cv::Mat3b clahe_bgr;
+  cv::cvtColor(newlab, clahe_bgr, cv::COLOR_Lab2BGR);
+  //Do inpainting
+  Mat1b gray;
+  cv::cvtColor(clahe_bgr, gray, cv::COLOR_BGR2GRAY);
+  Mat1b mask;
+  //MAGIC NUMBER 2 (MOST IMPORTANT)
+  cv::threshold(gray, mask, 225, 255, cv::THRESH_BINARY);
+  Mat3b inpainted;
+  //MAGIC NUMBER 3
+  cv::inpaint(image, mask, inpainted, 0.1, cv::INPAINT_TELEA);
+  //Blur
+  cv::GaussianBlur(inpainted, inpainted, Size(5, 5), 0, 0);
+  return inpainted;
 }
