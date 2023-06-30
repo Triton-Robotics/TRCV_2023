@@ -2,7 +2,7 @@
 #include "../include/auto_aim/Camera.h"
 #include "../include/classical_cv/imutils.h"
 
-static const int BLUE = 1;
+// static const int BLUE = 1;
 
 inline float euclid_distance(float x1, float y1, float x2, float y2) {
   return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
@@ -19,27 +19,30 @@ int main(int argc, char **argv) {
 
   cudaSetDevice(kGpuId);
   std::string wts_name = "";
-  std::string engine_name = "";
+  std::string engine_name = "armor.engine";
   bool is_p6 = false;
   float gd = 0.0f, gw = 0.0f;
-  std::string img_dir;
+  std::string img_dir = ".";
 
   Camera camera;
   camera.init();
   rclcpp::init(argc, argv);
   rclcpp::Node::SharedPtr nh_ = rclcpp::Node::make_shared("auto_aim");
+  nh_->declare_parameter("is_blue", rclcpp::ParameterValue(true));
+
 
   YOLO detector(nh_);
   detector.load_armor_data();
+  detector.isblue = nh_->get_parameter("is_blue").as_bool();
 
-  if (!detector.parse_args(argc, argv, wts_name, engine_name, is_p6, gd, gw, img_dir)) {
-    std::cerr << "arguments not right!" << std::endl;
-    std::cerr
-        << "./yolov5_det -s [.wts] [.engine] [n/s/m/l/x/n6/s6/m6/l6/x6 or c/c6 gd gw]  // serialize model to plan file"
-        << std::endl;
-    std::cerr << "./yolov5_det -d [.engine] ../images  // deserialize plan file and run inference" << std::endl;
-    return -1;
-  }
+  // if (!detector.parse_args(argc, argv, wts_name, engine_name, is_p6, gd, gw, img_dir)) {
+  //   std::cerr << "arguments not right!" << std::endl;
+  //   std::cerr
+  //       << "./yolov5_det -s [.wts] [.engine] [n/s/m/l/x/n6/s6/m6/l6/x6 or c/c6 gd gw]  // serialize model to plan file"
+  //       << std::endl;
+  //   std::cerr << "./yolov5_det -d [.engine] ../images  // deserialize plan file and run inference" << std::endl;
+  //   return -1;
+  // }
 
 //    // Create a model using the API directly and serialize it to a file
   if (!wts_name.empty()) {
@@ -70,6 +73,7 @@ int main(int argc, char **argv) {
   signal(SIGINT, signal_handle);
 
   while (while_flag) {
+    RCLCPP_INFO(nh_->get_logger(), "Is blue: %d", detector.isblue);
 
     auto start = std::chrono::system_clock::now();
 
@@ -102,7 +106,7 @@ int main(int argc, char **argv) {
 
     for (size_t i = 0; i < res_batch.size(); i++) {
       for (size_t j = 0; j < res_batch[i].size(); j++) {
-        if (res_batch[i][j].class_id == 1) {
+        if (res_batch[i][j].class_id == (detector.isblue ? 1 : 0)) {
           // cv::Point2f target_center = get_center(res_batch[i][j].bbox[0], res_batch[i][j].bbox[1]);
           // cv::Point2f frame_center = get_center(640, 640);
 
@@ -137,7 +141,7 @@ int main(int argc, char **argv) {
 //      ARMOR_SIZE size
         //TODO: Fix
       cv::Point3f target_3d = {0, 0, 0};
-      auto out = getArmorPanelStats(tlc, brc, img, BLUE_ARMOR);
+      auto out = getArmorPanelStats(tlc, brc, img, detector.isblue ? BLUE_ARMOR : RED_ARMOR);
       if (out.has_value()) {
         auto [armorpanel, panel_size] = out.value();
         Coords middlec =
@@ -155,12 +159,9 @@ int main(int argc, char **argv) {
         cv::circle(img, armorpanel.right.bottom.toopencvpoint(), 5, {0, 255, 0}, -1);
 
         target_3d = detector.getPose(panel_size);
-      } else {
-        //TODO: fix fallback
-        detector.final_armor_2Dpoints = {middle, topLeft, topRight, bottomLeft, bottomRight};
+        detector.publishData(target_3d.x, target_3d.y, target_3d.z);
       }
     
-      detector.publishData(target_3d.x, target_3d.y, target_3d.z);
     }
 
     auto end = std::chrono::system_clock::now();

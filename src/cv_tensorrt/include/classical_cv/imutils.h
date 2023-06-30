@@ -30,8 +30,8 @@ constexpr auto inWhiteRange = [](auto &&PH1, auto &&PH2) {
 };
 constexpr auto inBlueRange = [](auto &&PH1, auto &&PH2) {
   return cv::inRange(std::forward<decltype(PH1)>(PH1),
-                     std::vector<int>{60, 35, 140},
-                     std::vector<int>{180, 255, 255},
+                     std::vector<int>{70, 20, 140},
+                     std::vector<int>{100, 255, 255},
                      std::forward<decltype(PH2)>(PH2));
 };
 constexpr auto inRedRange = [](auto &&PH1, auto &&PH2) {

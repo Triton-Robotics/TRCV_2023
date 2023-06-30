@@ -47,12 +47,13 @@ public:
         publisher_ = nh_->create_publisher<cool_vector_type::msg::Vector3>("gimbal_data", 10);
     }
 
-    int OFFSET_INT_YAW = 1800;
-    int OFFSET_INT_PITCH = 1800;
-    int OFFSET_YAW;
-    int OFFSET_PITCH;
+    // int OFFSET_INT_YAW = 1800;
+    // int OFFSET_INT_PITCH = 1800;
+    // int OFFSET_YAW;
+    // int OFFSET_PITCH;
 
-    bool debug_;
+    // bool debug_;
+    bool isblue;
     rclcpp::Node::SharedPtr nh_;
 
     cv::Point3f getPose(ARMOR_SIZE size);
@@ -75,7 +76,7 @@ public:
 
 private:
     rclcpp::Publisher<cool_vector_type::msg::Vector3>::SharedPtr publisher_;
-    void declearAndLoadParameter();
+    void declareAndLoadParameter();
 
 
     // solvePnP

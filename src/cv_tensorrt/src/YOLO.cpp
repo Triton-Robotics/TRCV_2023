@@ -126,18 +126,18 @@ void YOLO::deserialize_engine(std::string& engine_name, IRuntime** runtime, ICud
     delete[] serialized_engine;
 }
 
-void YOLO::declearAndLoadParameter() {
-    nh_->declare_parameter("DEBUG", rclcpp::ParameterValue(true));
-    nh_->declare_parameter("yaw_offset");
-    nh_->declare_parameter("pitch_offset");
-    nh_->declare_parameter("small_armor.width");
-    nh_->declare_parameter("small_armor.height");
-    nh_->declare_parameter("big_armor.width");
-    nh_->declare_parameter("big_armor.height");
+void YOLO::declareAndLoadParameter() {
+    nh_->declare_parameter("is_blue", rclcpp::ParameterValue(true));
+    // nh_->declare_parameter("yaw_offset");
+    // nh_->declare_parameter("pitch_offset");
+    // nh_->declare_parameter("small_armor.width");
+    // nh_->declare_parameter("small_armor.height");
+    // nh_->declare_parameter("big_armor.width");
+    // nh_->declare_parameter("big_armor.height");
 
-    debug_ = nh_->get_parameter("DEBUG").as_bool();
-    OFFSET_YAW = nh_->get_parameter("yaw_offset").as_int();
-    OFFSET_PITCH = nh_->get_parameter("pitch_offset").as_int();
+    isblue = nh_->get_parameter("is_blue").as_bool();
+    // OFFSET_YAW = nh_->get_parameter("yaw_offset").as_int();
+    // OFFSET_PITCH = nh_->get_parameter("pitch_offset").as_int();
 }
 
 void YOLO::load_armor_data()
@@ -153,11 +153,11 @@ void YOLO::load_armor_data()
 //            small_height = nh_->get_parameter("small_armor.height").as_double(),
 //            big_width = nh_->get_parameter("big_armor.width").as_double(),
 //            big_height = nh_->get_parameter("big_armor.height").as_double();
-    if (debug_)
-    {
-        RCLCPP_INFO(nh_->get_logger(), "small marmor:\n width: %f, height: %f\n big armor:\n width: %f, height: %f\n ",
-                    small_width, small_height, big_width, big_height);
-    }
+    // if (debug_)
+    // {
+    //     RCLCPP_INFO(nh_->get_logger(), "small marmor:\n width: %f, height: %f\n big armor:\n width: %f, height: %f\n ",
+    //                 small_width, small_height, big_width, big_height);
+    // }
     x = 0;
     y = 0;
     small_real_armor_points.emplace_back(x, y, z);
@@ -229,12 +229,10 @@ cv::Point3f YOLO::getPose(ARMOR_SIZE size)
 void YOLO::publishData(double x, double y, double z)
 {
     cool_vector_type::msg::Vector3 gimbal_message;
-    gimbal_message.x = x;
-    gimbal_message.y = y;
-    gimbal_message.z = z;
+    gimbal_message.x = x / 1000;
+    gimbal_message.y = -y / 1000;
+    gimbal_message.z = z / 1000;
 
-
-    
     publisher_->publish(gimbal_message);
 }
 
