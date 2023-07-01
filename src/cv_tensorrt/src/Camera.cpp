@@ -51,7 +51,7 @@ int Camera::init()
 
     // Set feature value
 
-    this->status = setProperty(2000.0, 640, 640);
+    this->status = setProperty(2000.0, 1280, 1024);
 
     // start grabbing
     this->status = IMV_StartGrabbing(this->devHandle);
@@ -81,15 +81,19 @@ int Camera::getImage(cv::Mat &img)
     cv::cvtColor(buffer, buffer, cv::COLOR_BayerRG2RGB);
     buffer.copyTo(img);
 
+
     //compute the center pixel of img
     cv::Point2f center;
     center.x = img.cols / 2;
     center.y = img.rows / 2;
+    int halfheight = (img.rows / 2) - 1;
+
+
 
     // Resize image to 640 x 640 without distorting the aspect ratio
-    cv::Mat resized_img;
+    // cv::Mat resized_img;
     cv::Size size(640, 640);
-    cv::resize(img(cv::Range{center.x - (img.rows/2), center.x + (img.rows/2)}, cv::Range{center.y - (img.cols / 2). center.y + (img.cols / 2)}), resized_img, size, cv::INTER_AREA);
+    cv::resize(img(cv::Range{center.y - halfheight, center.y + halfheight}, cv::Range{center.x - halfheight, center.x + halfheight}), img, size, cv::INTER_AREA);
 
     this->status = IMV_ReleaseFrame(this->devHandle, &raw_frame);
     if (IMV_OK != this->status)
@@ -109,18 +113,18 @@ int Camera::setProperty(double exposureTime, int width, int height)
         return this->status;
     }
 
-    // this->status = IMV_SetIntFeatureValue(devHandle, "Width", width);
-    // if (IMV_OK != this->status)
-    // {
-    //     printf("Set Width value failed! ErrorCode[%d]\n", this->status);
-    //     return this->status;
-    // }
-    // this->status = IMV_SetIntFeatureValue(devHandle, "Height", height);
-    // if (IMV_OK != this->status)
-    // {
-    //     printf("Set Height value failed! ErrorCode[%d]\n", this->status);
-    //     return this->status;
-    // }
+    this->status = IMV_SetIntFeatureValue(devHandle, "Width", width);
+    if (IMV_OK != this->status)
+    {
+        printf("Set Width value failed! ErrorCode[%d]\n", this->status);
+        return this->status;
+    }
+    this->status = IMV_SetIntFeatureValue(devHandle, "Height", height);
+    if (IMV_OK != this->status)
+    {
+        printf("Set Height value failed! ErrorCode[%d]\n", this->status);
+        return this->status;
+    }
     return IMV_OK;
 }
 
