@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
   signal(SIGINT, signal_handle);
 
   while (while_flag) {
-    RCLCPP_INFO(nh_->get_logger(), "Is blue: %d", detector.isblue);
+    // RCLCPP_INFO(nh_->get_logger(), "Is blue: %d", detector.isblue);
 
     auto start = std::chrono::system_clock::now();
 

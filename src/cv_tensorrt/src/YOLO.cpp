@@ -204,11 +204,11 @@ cv::Point3f YOLO::getPose(ARMOR_SIZE size)
     cv::Mat tvec;
 
     if (size == ARMOR_SIZE::SMALL){
-        cv::solvePnPRansac(small_real_armor_points, final_armor_2Dpoints, cameraMatrix, distCoeffs, rvec, tvec, false,
+        cv::solvePnP(small_real_armor_points, final_armor_2Dpoints, cameraMatrix, distCoeffs, rvec, tvec, false,
              cv::SOLVEPNP_ITERATIVE);
     }
     else if (size == ARMOR_SIZE::LARGE){
-        cv::solvePnPRansac(big_real_armor_points, final_armor_2Dpoints, cameraMatrix, distCoeffs, rvec, tvec, false,
+        cv::solvePnP(big_real_armor_points, final_armor_2Dpoints, cameraMatrix, distCoeffs, rvec, tvec, false,
              cv::SOLVEPNP_ITERATIVE);
     }
     else {
