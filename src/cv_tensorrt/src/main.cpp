@@ -83,6 +83,7 @@ int main(int argc, char **argv) {
     camera.getImage(img);
     
 
+
     // if (imgcnt % 30 == 0) {
     //   cv::imwrite(cv::format("images/%d.jpg", imgcnt), img);
     // }

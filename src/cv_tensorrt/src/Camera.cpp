@@ -80,6 +80,17 @@ int Camera::getImage(cv::Mat &img)
     //printf("%d\n", raw_frame.frameInfo.width * raw_frame.frameInfo.height);
     cv::cvtColor(buffer, buffer, cv::COLOR_BayerRG2RGB);
     buffer.copyTo(img);
+
+    //compute the center pixel of img
+    cv::Point2f center;
+    center.x = img.cols / 2;
+    center.y = img.rows / 2;
+
+    // Resize image to 640 x 640 without distorting the aspect ratio
+    cv::Mat resized_img;
+    cv::Size size(640, 640);
+    cv::resize(img(cv::Range{center.x - (img.rows/2), center.x + (img.rows/2)}, cv::Range{center.y - (img.cols / 2). center.y + (img.cols / 2)}), resized_img, size, cv::INTER_AREA);
+
     this->status = IMV_ReleaseFrame(this->devHandle, &raw_frame);
     if (IMV_OK != this->status)
     {
