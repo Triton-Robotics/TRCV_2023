@@ -158,9 +158,9 @@ void YOLO::load_armor_data()
     //     RCLCPP_INFO(nh_->get_logger(), "small marmor:\n width: %f, height: %f\n big armor:\n width: %f, height: %f\n ",
     //                 small_width, small_height, big_width, big_height);
     // }
-    x = 0;
-    y = 0;
-    small_real_armor_points.emplace_back(x, y, z);
+    // x = 0;
+    // y = 0;
+    // small_real_armor_points.emplace_back(x, y, z);
     x = -small_width / 2;
     y = small_height / 2;
     small_real_armor_points.emplace_back(x, y, z);
@@ -175,9 +175,9 @@ void YOLO::load_armor_data()
     small_real_armor_points.emplace_back(x, y, z);
 
     //**********************************************************************//
-    x = 0;
-    y = 0;
-    big_real_armor_points.emplace_back(x, y, z);
+    // x = 0;
+    // y = 0;
+    // big_real_armor_points.emplace_back(x, y, z);
     x = -big_width / 2;
     y = big_height / 2;
     big_real_armor_points.emplace_back(x, y, z);
@@ -196,17 +196,19 @@ void YOLO::load_armor_data()
 
 }
 
+std::vector<cv::Point2f> output{cv::Point2f{0.0,0.0}};
+
 cv::Point3f YOLO::getPose(ARMOR_SIZE size)
 {
     cv::Mat rvec;
     cv::Mat tvec;
 
     if (size == ARMOR_SIZE::SMALL){
-        cv::solvePnP(small_real_armor_points, final_armor_2Dpoints, cameraMatrix, distCoeffs, rvec, tvec, false,
+        cv::solvePnPRansac(small_real_armor_points, final_armor_2Dpoints, cameraMatrix, distCoeffs, rvec, tvec, false,
              cv::SOLVEPNP_ITERATIVE);
     }
     else if (size == ARMOR_SIZE::LARGE){
-        cv::solvePnP(big_real_armor_points, final_armor_2Dpoints, cameraMatrix, distCoeffs, rvec, tvec, false,
+        cv::solvePnPRansac(big_real_armor_points, final_armor_2Dpoints, cameraMatrix, distCoeffs, rvec, tvec, false,
              cv::SOLVEPNP_ITERATIVE);
     }
     else {
@@ -217,8 +219,7 @@ cv::Point3f YOLO::getPose(ARMOR_SIZE size)
     //     RCLCPP_INFO(nh_->get_logger(), "final armor points: %f, %f", armor_point.x, armor_point.y);
     // }
 
-
-    // cv::projectPoints([0.0, 0.0, 1000.0], rvec, tvec, cameraMatrix, distCoeffs, output);
+    cv::projectPoints(std::vector{cv::Point3f{0.0, 0.0, 0.0}}, rvec, tvec, cameraMatrix, distCoeffs, output);
     RCLCPP_INFO(nh_->get_logger(), "tvec: %f, %f, %f", tvec.at<double>(0,0), tvec.at<double>(1,0), tvec.at<double>(2,0));
 
     return cv::Point3f(tvec);

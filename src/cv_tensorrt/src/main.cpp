@@ -81,6 +81,8 @@ int main(int argc, char **argv) {
     cv::Mat img;
     std::vector<cv::Mat> img_batch;
     camera.getImage(img);
+    
+
     // if (imgcnt % 30 == 0) {
     //   cv::imwrite(cv::format("images/%d.jpg", imgcnt), img);
     // }
@@ -144,19 +146,22 @@ int main(int argc, char **argv) {
       auto out = getArmorPanelStats(tlc, brc, img, detector.isblue ? BLUE_ARMOR : RED_ARMOR);
       if (out.has_value()) {
         auto [armorpanel, panel_size] = out.value();
-        Coords middlec =
-            (armorpanel.left.top + armorpanel.left.bottom + armorpanel.right.top + armorpanel.right.bottom) / 4;
-        cv::Point2f middlepoint = middlec.toopencvpoint();
-        detector.final_armor_2Dpoints = {middlepoint,
+        // Coords middlec =
+        //     (armorpanel.left.top + armorpanel.left.bottom + armorpanel.right.top + armorpanel.right.bottom) / 4;
+        // cv::Point2f middlepoint = middlec.toopencvpoint();
+        detector.final_armor_2Dpoints = {
                                       armorpanel.left.top.toopencvpoint(),
                                       armorpanel.right.top.toopencvpoint(),
                                       armorpanel.left.bottom.toopencvpoint(),
                                       armorpanel.right.bottom.toopencvpoint()};
-        cv::circle(img, middlepoint, 5, {0, 0, 255}, -1);
+        // cv::circle(img, middlepoint, 5, {0, 0, 255}, -1);
         cv::circle(img, armorpanel.left.top.toopencvpoint(), 5, {0, 255, 0}, -1);
         cv::circle(img, armorpanel.right.top.toopencvpoint(), 5, {0, 255, 0}, -1);
         cv::circle(img, armorpanel.left.bottom.toopencvpoint(), 5, {0, 255, 0}, -1);
         cv::circle(img, armorpanel.right.bottom.toopencvpoint(), 5, {0, 255, 0}, -1);
+        if(!detector.output.empty()){
+          cv::circle(img, detector.output[0], 5, {0, 255, 0}, -1);
+        }
 
         target_3d = detector.getPose(panel_size);
         detector.publishData(target_3d.x, target_3d.y, target_3d.z );

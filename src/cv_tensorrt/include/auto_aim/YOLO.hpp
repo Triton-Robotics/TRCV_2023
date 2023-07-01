@@ -61,6 +61,7 @@ public:
 
     std::vector<cv::Point2f> final_armor_2Dpoints;
     void load_armor_data();
+    std::vector<cv::Point2f> output;
 
 
 
@@ -92,8 +93,8 @@ private:
     */
 
     cv::Mat cameraMatrix = (cv::Mat_<double>(3, 3) << 
-            2062.15199, 0.0,    555.84843,
-            0.0,        2051.33571, 451.03496,
+            1876.01, 0.0,    521.59,
+            0.0,        1893.20, 725.45,
             0.0,        0.0,        1.0
     );
 
@@ -103,7 +104,7 @@ private:
     [[-0.20666  0.48607 -0.01596 -0.02134  3.17586]]
     */
     cv::Mat distCoeffs = (cv::Mat_<double>(1, 5) << 
-            -0.20666, 0.48607, -0.01596, -0.02134, 3.17586
+            -0.12, 0.27, 0.026, -0.014, -0.33
     );
 
 

@@ -98,18 +98,18 @@ int Camera::setProperty(double exposureTime, int width, int height)
         return this->status;
     }
 
-    this->status = IMV_SetIntFeatureValue(devHandle, "Width", width);
-    if (IMV_OK != this->status)
-    {
-        printf("Set Width value failed! ErrorCode[%d]\n", this->status);
-        return this->status;
-    }
-    this->status = IMV_SetIntFeatureValue(devHandle, "Height", height);
-    if (IMV_OK != this->status)
-    {
-        printf("Set Height value failed! ErrorCode[%d]\n", this->status);
-        return this->status;
-    }
+    // this->status = IMV_SetIntFeatureValue(devHandle, "Width", width);
+    // if (IMV_OK != this->status)
+    // {
+    //     printf("Set Width value failed! ErrorCode[%d]\n", this->status);
+    //     return this->status;
+    // }
+    // this->status = IMV_SetIntFeatureValue(devHandle, "Height", height);
+    // if (IMV_OK != this->status)
+    // {
+    //     printf("Set Height value failed! ErrorCode[%d]\n", this->status);
+    //     return this->status;
+    // }
     return IMV_OK;
 }
 
