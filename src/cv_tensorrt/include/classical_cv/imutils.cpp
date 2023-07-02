@@ -5,9 +5,11 @@
 #include "imutils.h"
 #include <cmath>
 #include "InvalidLightbar.h"
+// #include "rclcpp/rclcpp.hpp"
 
 using std::vector;
 using namespace cv;
+// using std::placeholders::_1;
 
 Coords Coords::operator+(const Coords &other) const {
   return Coords{this->x + other.x, this->y + other.y};
@@ -55,22 +57,42 @@ std::pair<SplitResult, SplitResult> split_down_middle(const Mat3b &image) {
                    SplitResult{image(Range::all(), Range(halfwidth, width)), rightranslator}};
 }
 
+bool IS_LEFT = false;
+
 Mat1b get_mask(const Mat3b &image, ARMOR_COLOR color) {
   cv::Mat3b bgr_image;
-  cv::Mat mask;
+  cv::Mat bgr_mask;
 
   
-  std::vector<cv::Mat> BGR_channels;
-  cv::split(bgr_image, BGR_channels);
+  std::vector<cv::Mat1b> BGR_channels{};
+  cv::split(image, BGR_channels);
+
+  // cv::Mat3b hsv_image;
+  // cv::Mat1b mask;
+
+  
+  // RCLCPP_INFO(get_logger(), "Size", BGR_channels.size());
+  // for (int i = 0; i < 3; i++)
+  // {
+  //   imshow(std::to_string(i), BGR_channels[i]);
+  // }
 
 
   if (color == BLUE_ARMOR) {
-    cv::subtract(BGR_channels[2], BGR_channels[1], mask);
+    cv::subtract(BGR_channels[2], BGR_channels[1], bgr_mask);
+    // cvtColor(image, hsv_image, COLOR_BGR2GRAY);
+    // cv_constants::inBlueRange(hsv_image, mask);
   } else {
-    cv::subtract(BGR_channels[0], BGR_channels[2], mask);
+    cv::subtract(BGR_channels[0], BGR_channels[2], bgr_mask);
+    // cvtColor(image, hsv_image, COLOR_BGR2GRAY);
+    // cv_constants::inRedRange(hsv_image, mask);
   }
   cv::Mat3b switched;
   cvtColor(image, switched, COLOR_BGR2RGB);
+  if(IS_LEFT){
+    imshow("d", bgr_mask);
+  }
+  
 //  imshow("Display window 2", switched);
 //  cv::waitKey(0);
   // imshow("Display window 2", mask);
@@ -78,10 +100,11 @@ Mat1b get_mask(const Mat3b &image, ARMOR_COLOR color) {
   Mat kernel{Size(5, 5), CV_64FC1, Scalar(1.0)};
   Mat reshaped_mask;
 
-  erode(mask, reshaped_mask, kernel);
+  erode(bgr_mask, reshaped_mask, kernel);
   dilate(reshaped_mask, reshaped_mask, kernel);
   return static_cast<Mat1b>(reshaped_mask);
 }
+
 
 LightBar box_points_to_lightbar(const vector<Coords> &coordsvec) {
   vector<double> dist{};
@@ -125,7 +148,9 @@ LightBar get_lightbar_in_split(const SplitResult &splitResult, ARMOR_COLOR color
 ArmorPanel get_key_points(const cv::Mat3b& image, Coords topleft, Coords bottomright, ARMOR_COLOR color) {
   CropResult cropResult{crop_interest_region(image, topleft, bottomright)};
   auto [leftSplit, rightSplit] = split_down_middle(cropResult.image);
+  IS_LEFT = true;
   LightBar leftlb = get_lightbar_in_split(leftSplit, color);
+  IS_LEFT = false; 
   LightBar rightlb = get_lightbar_in_split(rightSplit, color);
   return ArmorPanel{LightBar{cropResult.translator(leftSplit.translator(leftlb.top)),
                              cropResult.translator(leftSplit.translator(leftlb.bottom)),},
