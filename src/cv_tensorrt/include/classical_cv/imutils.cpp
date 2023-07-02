@@ -56,14 +56,18 @@ std::pair<SplitResult, SplitResult> split_down_middle(const Mat3b &image) {
 }
 
 Mat1b get_mask(const Mat3b &image, ARMOR_COLOR color) {
-  Mat3b hsv_image;
-  Mat mask;
+  cv::Mat3b bgr_image;
+  cv::Mat mask;
+
+  
+  std::vector<cv::Mat> BGR_channels;
+  cv::split(bgr_image, BGR_channels);
+
+
   if (color == BLUE_ARMOR) {
-    cvtColor(image, hsv_image, COLOR_BGR2HSV);
-    cv_constants::inBlueRange(hsv_image, mask);
+    cv::subtract(BGR_channels[2], BGR_channels[1], mask);
   } else {
-    cvtColor(image, hsv_image, COLOR_RGB2HSV);
-    cv_constants::inRedRange(hsv_image, mask);
+    cv::subtract(BGR_channels[0], BGR_channels[2], mask);
   }
   cv::Mat3b switched;
   cvtColor(image, switched, COLOR_BGR2RGB);
