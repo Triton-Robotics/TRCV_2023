@@ -1,6 +1,6 @@
-#colcon build
-#colcon build --symlink-install --packages-select cv_tensorrt
-source install/setup.bash
-# ros2 run cv_tensorrt cv_tensorrt -d  armor.engine .
+#!/bin/bash
 
-ros2 run cv_tensorrt cv_tensorrt
+cd /home/nvidia/Documents/TRCV_2023/
+source install/setup.bash
+ros2 launch cv cv.launch.py
+
