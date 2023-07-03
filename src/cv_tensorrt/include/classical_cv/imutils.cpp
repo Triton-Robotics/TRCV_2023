@@ -133,7 +133,7 @@ bool valid_bb(Coords topleft, Coords bottomright) {
   double height = bottomright.y - topleft.y;
   double width = bottomright.x - topleft.x;
   if (height > width) {
-    return (height / width) > cv_constants::MAX_VERT_ASPECT_RATIO;
+    return (height / width) < cv_constants::MAX_VERT_ASPECT_RATIO;
   }
   return true;
 }
