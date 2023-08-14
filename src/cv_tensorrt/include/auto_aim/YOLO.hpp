@@ -28,6 +28,7 @@
 #include "std_msgs/msg/int32.hpp"
 #include "cool_vector_type/msg/vector3.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "imutils.h"
 
 
 
@@ -46,19 +47,21 @@ public:
         publisher_ = nh_->create_publisher<cool_vector_type::msg::Vector3>("gimbal_data", 10);
     }
 
-    int OFFSET_INT_YAW = 1800;
-    int OFFSET_INT_PITCH = 1800;
-    int OFFSET_YAW;
-    int OFFSET_PITCH;
+    // int OFFSET_INT_YAW = 1800;
+    // int OFFSET_INT_PITCH = 1800;
+    // int OFFSET_YAW;
+    // int OFFSET_PITCH;
 
-    bool debug_;
+    // bool debug_;
+    bool isblue;
     rclcpp::Node::SharedPtr nh_;
 
-    cv::Point3f getPose();
+    cv::Point3f getPose(ARMOR_SIZE size);
     void publishData(double x, double y, double z);
 
     std::vector<cv::Point2f> final_armor_2Dpoints;
     void load_armor_data();
+    std::vector<cv::Point2f> output;
 
 
 
@@ -74,21 +77,35 @@ public:
 
 private:
     rclcpp::Publisher<cool_vector_type::msg::Vector3>::SharedPtr publisher_;
-    void declearAndLoadParameter();
+    void declareAndLoadParameter();
 
 
     // solvePnP
     std::vector<cv::Point3f> small_real_armor_points;
     std::vector<cv::Point3f> big_real_armor_points;
 
+    /*
+    Camera matrix :
 
+    [[2062.15199    0.       555.84843]
+    [   0.      2051.33571  451.03496]
+    [   0.         0.         1.     ]]
+    */
 
-    cv::Mat cameraMatrix = (cv::Mat_<double>(3, 3) << 2149.398738741313, 0.000000000000, 630.8116709129316,
-            0.0000000000000000, 2173.036926782579, 508.2915674836098,
-            0.0000000000000000, 0.0000000000000000, 1.0000000000000000);
-    cv::Mat distCoeffs = (cv::Mat_<double>(1, 5)
-            << 0.07598515058037726,
-            -5.203545554688566, 0.002682535363310819, -0.001778044841669727, 57.25786468650683);
+    cv::Mat cameraMatrix = (cv::Mat_<double>(3, 3) << 
+            1876.01, 0.0,    521.59,
+            0.0,        1893.20, 725.45,
+            0.0,        0.0,        1.0
+    );
+
+    /*
+    dist :
+
+    [[-0.20666  0.48607 -0.01596 -0.02134  3.17586]]
+    */
+    cv::Mat distCoeffs = (cv::Mat_<double>(1, 5) << 
+            -0.12, 0.27, 0.026, -0.014, -0.33
+    );
 
 
 

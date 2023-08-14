@@ -1,13 +1,12 @@
 # adapted the CUDA and tensorrt part from
 # https://github.com/wang-xinyu/tensorrtx/blob/master/yolov5/CMakeLists.txt
 
-cmake_minimum_required(VERSION 3.23)
+cmake_minimum_required(VERSION 3.16)
 project(cv_tensorrt)
 
-add_definitions(-std=c++14)
 add_definitions(-DAPI_EXPORTS)
 option(CUDA_USE_STATIC_CUDA_RUNTIME OFF)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_BUILD_TYPE Debug)
 
 # ROS2
@@ -55,7 +54,7 @@ target_link_libraries(${PROJECT_NAME} cudart)
 target_link_libraries(${PROJECT_NAME}  myplugins)
 target_link_libraries(${PROJECT_NAME} ${CAMERA_LIB} ${OpenCV_LIBS} rt pthread)
 
-
+add_subdirectory(include/classical_cv)
 target_include_directories(${PROJECT_NAME} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>)

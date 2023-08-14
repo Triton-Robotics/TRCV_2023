@@ -4,3 +4,6 @@
 [submodule "src/cool_vector_type"]
 	path = src/cool_vector_type
 	url = https://github.com/Triton-Robotics/cool_vector_type
+[submodule "src/TR-Ballistics"]
+	path = src/TR-Ballistics
+	url = https://github.com/Triton-Robotics/TR-Ballistics.git

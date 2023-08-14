@@ -51,7 +51,7 @@ int Camera::init()
 
     // Set feature value
 
-    this->status = setProperty(7000.00, 640, 640);
+    this->status = setProperty(2000.0, 1280, 1024);
 
     // start grabbing
     this->status = IMV_StartGrabbing(this->devHandle);
@@ -80,6 +80,21 @@ int Camera::getImage(cv::Mat &img)
     //printf("%d\n", raw_frame.frameInfo.width * raw_frame.frameInfo.height);
     cv::cvtColor(buffer, buffer, cv::COLOR_BayerRG2RGB);
     buffer.copyTo(img);
+
+
+    //compute the center pixel of img
+    cv::Point2f center;
+    center.x = img.cols / 2;
+    center.y = img.rows / 2;
+    int halfheight = (img.rows / 2) - 1;
+
+
+
+    // Resize image to 640 x 640 without distorting the aspect ratio
+    // cv::Mat resized_img;
+    cv::Size size(640, 640);
+    cv::resize(img(cv::Range{center.y - halfheight, center.y + halfheight}, cv::Range{center.x - halfheight, center.x + halfheight}), img, size, cv::INTER_AREA);
+
     this->status = IMV_ReleaseFrame(this->devHandle, &raw_frame);
     if (IMV_OK != this->status)
     {

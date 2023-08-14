@@ -126,51 +126,58 @@ void YOLO::deserialize_engine(std::string& engine_name, IRuntime** runtime, ICud
     delete[] serialized_engine;
 }
 
-void YOLO::declearAndLoadParameter() {
-    nh_->declare_parameter("DEBUG", rclcpp::ParameterValue(true));
-    nh_->declare_parameter("yaw_offset");
-    nh_->declare_parameter("pitch_offset");
-    nh_->declare_parameter("small_armor.width");
-    nh_->declare_parameter("small_armor.height");
-    nh_->declare_parameter("big_armor.width");
-    nh_->declare_parameter("big_armor.height");
+void YOLO::declareAndLoadParameter() {
+    nh_->declare_parameter("is_blue", rclcpp::ParameterValue(true));
+    // nh_->declare_parameter("yaw_offset");
+    // nh_->declare_parameter("pitch_offset");
+    // nh_->declare_parameter("small_armor.width");
+    // nh_->declare_parameter("small_armor.height");
+    // nh_->declare_parameter("big_armor.width");
+    // nh_->declare_parameter("big_armor.height");
 
-    debug_ = nh_->get_parameter("DEBUG").as_bool();
-    OFFSET_YAW = nh_->get_parameter("yaw_offset").as_int();
-    OFFSET_PITCH = nh_->get_parameter("pitch_offset").as_int();
+    isblue = nh_->get_parameter("is_blue").as_bool();
+    // OFFSET_YAW = nh_->get_parameter("yaw_offset").as_int();
+    // OFFSET_PITCH = nh_->get_parameter("pitch_offset").as_int();
 }
 
 void YOLO::load_armor_data()
 {
     float x, y, z = 0;
 
-    double small_width = 140.0;
-    double small_height = 60.0;
+    double small_width = 130.0;
+    double small_height = 55.0;
+
     double big_width = 230.0;
-    double big_height = 60.0;
+    double big_height = 55.0;
 //    double small_width = nh_->get_parameter("small_armor.width").as_double(),
 //            small_height = nh_->get_parameter("small_armor.height").as_double(),
 //            big_width = nh_->get_parameter("big_armor.width").as_double(),
 //            big_height = nh_->get_parameter("big_armor.height").as_double();
-    if (debug_)
-    {
-        RCLCPP_INFO(nh_->get_logger(), "small marmor:\n width: %f, height: %f\n big armor:\n width: %f, height: %f\n ",
-                    small_width, small_height, big_width, big_height);
-    }
+    // if (debug_)
+    // {
+    //     RCLCPP_INFO(nh_->get_logger(), "small marmor:\n width: %f, height: %f\n big armor:\n width: %f, height: %f\n ",
+    //                 small_width, small_height, big_width, big_height);
+    // }
+    // x = 0;
+    // y = 0;
+    // small_real_armor_points.emplace_back(x, y, z);
     x = -small_width / 2;
     y = small_height / 2;
     small_real_armor_points.emplace_back(x, y, z);
     x = small_width / 2;
     y = small_height / 2;
     small_real_armor_points.emplace_back(x, y, z);
-    x = small_width / 2;
+    x = -small_width / 2;
     y = -small_height / 2;
     small_real_armor_points.emplace_back(x, y, z);
-    x = -small_width / 2;
+    x = small_width / 2;
     y = -small_height / 2;
     small_real_armor_points.emplace_back(x, y, z);
 
     //**********************************************************************//
+    // x = 0;
+    // y = 0;
+    // big_real_armor_points.emplace_back(x, y, z);
     x = -big_width / 2;
     y = big_height / 2;
     big_real_armor_points.emplace_back(x, y, z);
@@ -178,24 +185,42 @@ void YOLO::load_armor_data()
     y = big_height / 2;
 
     big_real_armor_points.emplace_back(x, y, z);
-    x = big_width / 2;
+    x = -big_width / 2;
     y = -big_height / 2;
 
     big_real_armor_points.emplace_back(x, y, z);
-    x = -big_width / 2;
+    x = big_width / 2;
     y = -big_height / 2;
 
     big_real_armor_points.emplace_back(x, y, z);
 
 }
 
-cv::Point3f YOLO::getPose()
+std::vector<cv::Point2f> output{cv::Point2f{0.0,0.0}};
+
+cv::Point3f YOLO::getPose(ARMOR_SIZE size)
 {
     cv::Mat rvec;
     cv::Mat tvec;
 
-    cv::solvePnP(small_real_armor_points, final_armor_2Dpoints, cameraMatrix, distCoeffs, rvec, tvec, false,
+    if (size == ARMOR_SIZE::SMALL){
+        cv::solvePnP(small_real_armor_points, final_armor_2Dpoints, cameraMatrix, distCoeffs, rvec, tvec, false,
              cv::SOLVEPNP_ITERATIVE);
+    }
+    else if (size == ARMOR_SIZE::LARGE){
+        cv::solvePnP(big_real_armor_points, final_armor_2Dpoints, cameraMatrix, distCoeffs, rvec, tvec, false,
+             cv::SOLVEPNP_ITERATIVE);
+    }
+    else {
+        RCLCPP_INFO(nh_->get_logger(), "lmao wrong armor size");
+    }
+    
+    // for(auto armor_point : final_armor_2Dpoints){
+    //     RCLCPP_INFO(nh_->get_logger(), "final armor points: %f, %f", armor_point.x, armor_point.y);
+    // }
+
+    cv::projectPoints(std::vector{cv::Point3f{0.0, 0.0, 0.0}}, rvec, tvec, cameraMatrix, distCoeffs, output);
+    RCLCPP_INFO(nh_->get_logger(), "tvec: %f, %f, %f", tvec.at<double>(0,0), tvec.at<double>(1,0), tvec.at<double>(2,0));
 
     return cv::Point3f(tvec);
 
@@ -205,12 +230,10 @@ cv::Point3f YOLO::getPose()
 void YOLO::publishData(double x, double y, double z)
 {
     cool_vector_type::msg::Vector3 gimbal_message;
-    gimbal_message.x = x;
-    gimbal_message.y = y;
-    gimbal_message.z = z;
+    gimbal_message.x = x / 1000;
+    gimbal_message.y = -y / 1000;
+    gimbal_message.z = z / 1000;
 
-
-    
     publisher_->publish(gimbal_message);
 }
 
